@@ -1,0 +1,33 @@
+
+This is a program meant to be used to find areas in Minecraft worlds which have a high chance of having a base.
+
+It reads .mca files and gives a probability for each chunk to contain a base.
+This is calculated by finding the relative proportions of 3 types of blocks: Natural, Possibly manmade, and Certainly manmade
+
+Examples of each type of block, respectively, are: Grass (naturally generated), Stone Bricks (generated in strongholds), and Jukeboxes (can only be placed by players).
+(Note: maybe there should be another type between possibly and certainly, for things like colored wool and others)
+
+For now, this program will only be made to support version 1.12.2 of Minecraft.
+
+
+
+Steps to completion:
+1. Find a way to read the data in .mca files
+	a. Read binary data
+-   - Success, just used fstream and .read() to read all 8192 bytes of the header
+-	- EDIT: GENERALLY USING FSTREAM WORKS, NOT JUST .read()
+
+2. Interpret the data in the header
+- Each region (.mca) file contains data for 32x32 (1024) chunks.
+- Each chunk has a location offset and timestamp in 2 tables which make up the header.
+- Each of these is 4 bytes 
+-   - first 3 bytes hold a big-endian offset in 4 kibibyte sections from start of file
+-   - last byte gives length of chunk in 4 KiB sectors, rounded up.
+-	- If chunk isn't present/not generated, both fields are 0.
+	a. Output offset data in more readable format
+-	- Finally done, took a while because data was being read into header array as zeros, likely as a result of not opening the file in binary mode.
+-	- Also, I was getting errors when deallocating because I was writing out of bounds.
+
+3. Access and read the chunk data
+	a. Figure out how to decompress the data and read in NBT format
+-	- Chunk data uses zlib compression
