@@ -10,6 +10,22 @@
 
 using namespace std;
 
+template <typename T>
+void resizeDynArr(T* &arr, int &size)
+{
+	int newSize = size * 2;
+	T* newArray = new T[newSize];
+
+	for (int i = 0; i < newSize; i++)
+		newArray[i] = 0;
+	for (int i = 0; i < size; i++)
+		newArray[i] = arr[i];
+
+	size = newSize;
+	delete[] arr;
+	arr = newArray;
+}
+
 void CopyHeaderData(unsigned char header1[], ifstream& inFile)
 {
 	inFile.open("r.0.0.mca", ios::binary);
@@ -154,13 +170,13 @@ int main() {
 
 	vector<unsigned char> chunkDataComp;
 
+	readChunk(chunkInfo[0][3], chunkInfo[0][2], chunkDataComp, iFile);
+
 	unsigned char* chunkDataComp1 = new unsigned char[chunkDataComp.size()];
 	for (int i = 0; i < chunkDataComp.size(); i++)
 	{
 		chunkDataComp1[i] = chunkDataComp[i];
 	}
-
-	readChunk(chunkInfo[0][3], chunkInfo[0][2], chunkDataComp, iFile);
 
 	cout << "Last element in vector is " << chunkDataComp.back() << "\n";
 
@@ -178,13 +194,31 @@ int main() {
 	string str2;
 	ostringstream strNew2(str2, ios::binary);*/
 
-	vector<unsigned char> chunkDataUncomp;
+	uLong destLen = chunkDataComp.size(); // uLong - unsigned long int
 
-	uLong destLenBound = compressBound(chunkDataComp.size());
-	uLong* destLenBoundPtr = &destLenBound;
-	unsigned char* chunkDataComp2 = new unsigned char[destLenBound]();
+	//vector<unsigned char> chunkDataUncomp;
 
-	int ret = uncompress(chunkDataComp2, destLenBoundPtr, chunkDataComp1, )
+	//uLong destLenBound = compressBound(chunkDataComp.size());
+	//uLong* destLenBoundPtr = &destLenBound;
+	unsigned char* chunkDataUncomp = new unsigned char[destLen]();
+	int len = destLen;
+
+	int ret = uncompress(chunkDataUncomp, &destLen, chunkDataComp1, chunkDataComp.size());
+
+	while (ret == Z_BUF_ERROR && ret != Z_OK)
+	{
+		if (ret == Z_MEM_ERROR)
+			break;
+		resizeDynArr(chunkDataUncomp, len);
+		destLen = len;
+		ret = uncompress(chunkDataUncomp, &destLen, chunkDataComp1, chunkDataComp.size());
+	}
+
+	oFile.open("uncompressedOutput.txt", ios::binary);
+	adler32()
+
+	for (int i = 0; i < len; i++)
+		oFile << chunkDataUncomp[i];
 
 
 	//vector<unsigned char> unComp = inflate(chunkDataComp);
