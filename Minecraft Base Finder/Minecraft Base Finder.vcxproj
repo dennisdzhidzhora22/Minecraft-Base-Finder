@@ -135,6 +135,10 @@
   <ItemGroup>
     <None Include="r.0.0.mca" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="zlib\zconf.h" />
+    <ClInclude Include="zlib\zlib.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -1,7 +1,13 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <string>
+#include <sstream>
 #include <cassert>
+#include "zlib/zlib.h"
+//#include <>
+#define CHUNK 16384
+
 using namespace std;
 
 void CopyHeaderData(unsigned char header1[], ifstream& inFile)
@@ -31,7 +37,7 @@ void CopyHeaderData(unsigned char header1[], ifstream& inFile)
 	//outFile.close();
 }
 
-void ParseHeader(unsigned char header2[], int** chunkData)
+void ParseHeader(unsigned char header2[], int** chunkInfo)
 {
 	int offset = 0; //Offset from start of file in 4KiB sections.
 	int temp = 0;
@@ -60,8 +66,8 @@ void ParseHeader(unsigned char header2[], int** chunkData)
 		sectorCount = header2[i + 3];
 
 		assert(i < 4096);
-		chunkData[i/4][3] = offset;
-		chunkData[i/4][2] = sectorCount;
+		chunkInfo[i/4][3] = offset;
+		chunkInfo[i/4][2] = sectorCount;
 		if (i / 4 == 0)
 		{
 			cout << hex << offset << "THIS IS THE OFFSET" << endl;
@@ -69,76 +75,136 @@ void ParseHeader(unsigned char header2[], int** chunkData)
 		cout << static_cast<int>(sectorCount) << " - SectorCount" << endl;
 		cout << "Read to " << hex << i << dec << endl;
 	}
-	cout << dec << chunkData[0][3] << endl << "test123" << endl;
+	cout << dec << chunkInfo[0][3] << endl << "test123" << endl;
 }
 
-void readChunk(int offset, int sectorCount, ifstream& inFile)
+void readChunk(int offset, int sectorCount, vector<unsigned char>& chunkDataCompressed, ifstream& inFile)
 {
+	//Testing getting and setting of position in file stream
+	cout << inFile.tellg() << " - Current Position in File, peek = " << inFile.peek() << "\n";
+	int temp1 = inFile.tellg();
+	inFile.seekg(0);
+	cout << inFile.tellg() << " - Current Position in File, peek = " << inFile.peek() << "\n";
+	inFile.seekg(temp1);
+	cout << inFile.tellg() << " - Current Position in File, peek = " << inFile.peek() << "\n";
+	// REMINDER - POSITION SHOULD BE SET BASED ON THE OFFSET, FOR TESTING PURPOSES LEFT AS IS
+
 	int length = 0;
 	int temp = 0;
 	char compressionType = 0;
 
 	temp = inFile.get();
 	temp = temp << 24;
-	offset = temp;
+	length = temp;
 
 	temp = inFile.get();
 	temp = temp << 16;
-	offset = offset ^ temp;
+	length = length ^ temp;
 
 	temp = inFile.get();
 	temp = temp << 8;
-	offset = offset ^ temp;
+	length = length ^ temp;
 
 	temp = inFile.get();
-	offset = offset ^ temp;
+	length = length ^ temp;
 
 	//Maybe make a readBytes() function which takes in number of bytes to read and variable/data structure to write them to.
 
 	compressionType = inFile.get();
+
+	cout << "Length of compressed chunk data is " << length << " bytes.\n" <<
+		"Compression type of chunk data is " << int(compressionType) << ".\n";
+
+	chunkDataCompressed.resize(length - 1);
+
+	for (int remaining = length - 1; remaining > 0; remaining--)
+	{
+		unsigned char tempChar = inFile.get();
+		chunkDataCompressed[4929 - remaining] = tempChar;
+	}
+	cout << inFile.tellg() << " - Current Position in File, peek = " << inFile.peek() << "\n";
+
 }
 
 int main() {
 	unsigned char* header = new unsigned char[8192]();
 
-	int** chunkData = new int* [1024];
+	int** chunkInfo = new int* [1024];
 
 	for (int i = 0; i < 1024; i++)
 	{
 		assert(i < 1024);
-		chunkData[i] = new int[4];
+		chunkInfo[i] = new int[4];
 	}
 
 	//cout << "\"" << static_cast<int>(header[3]) << "\"" << endl;
 
 	ifstream iFile;
-	//ofstream oFile;
+	//istringstream iString;
+	ofstream oFile;
 
 	/*iFile.open("r.0.0.mca");
 	iFile.read(header, 8192);*/
 
 	CopyHeaderData(header, iFile);
 	//cout << static_cast<int>(header[2]) << endl;
-	ParseHeader(header, chunkData);
+	ParseHeader(header, chunkInfo);
 
 	//cout << "\"" << static_cast<int>(header[5]) << "\"" << endl;
 
+	vector<unsigned char> chunkDataComp;
+
+	unsigned char* chunkDataComp1 = new unsigned char[chunkDataComp.size()];
+	for (int i = 0; i < chunkDataComp.size(); i++)
+	{
+		chunkDataComp1[i] = chunkDataComp[i];
+	}
+
+	readChunk(chunkInfo[0][3], chunkInfo[0][2], chunkDataComp, iFile);
+
+	cout << "Last element in vector is " << chunkDataComp.back() << "\n";
+
+
+	/*for (int i = 0; i < 4929; i++)
+	{
+		cout << int(chunkDataComp[i]) << "\n";
+	}*/
+
+	/*string str1(chunkDataComp.begin(), chunkDataComp.end());
+	cout << str1 << "\n";
+
+	istringstream strNew1(str1, ios::binary);
+
+	string str2;
+	ostringstream strNew2(str2, ios::binary);*/
+
+	vector<unsigned char> chunkDataUncomp;
+
+	uLong destLenBound = compressBound(chunkDataComp.size());
+	uLong* destLenBoundPtr = &destLenBound;
+	unsigned char* chunkDataComp2 = new unsigned char[destLenBound]();
+
+	int ret = uncompress(chunkDataComp2, destLenBoundPtr, chunkDataComp1, )
+
+
+	//vector<unsigned char> unComp = inflate(chunkDataComp);
 
 
 	iFile.close();
+	oFile.close();
 	cout << "Finished";
 
 	delete[] header;
 
 	for (int i = 1; i < 1024; i++)
 	{
-		delete[] chunkData[i];
+		delete[] chunkInfo[i];
 	}
 	
 	//delete[] chunkData[0];   For some reason, this doesn't work.
 	//NEVERMIND - I was writing to index 4, which is out of bounds.
 
-	delete[] chunkData;
+	delete[] chunkInfo;
 
 	return 0;
 }

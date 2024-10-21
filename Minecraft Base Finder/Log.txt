@@ -31,3 +31,5 @@ Steps to completion:
 3. Access and read the chunk data
 	a. Figure out how to decompress the data and read in NBT format
 -	- Chunk data uses zlib compression
+-	- Compressed chunk data is now in a vector
+-	- this zlib shit is so annoying, but i think i found a way forward - use realloc() in a loop. i'll leave that for later
