@@ -35,3 +35,4 @@ Steps to completion:
 -	- this zlib shit is so annoying, but i think i found a way forward - use realloc() in a loop. i'll leave that for later
 -	- Note: I'm almost definitely allocating more memory than needed for chunk data, but there's probably no need to trim it down since it'll be deallocated anyway.
 -	-	- Also, I need to update this log
+-	- The zlib library is now (12/24/24) correctly transferrable over github, had to change .gitignore and some linker configurations
