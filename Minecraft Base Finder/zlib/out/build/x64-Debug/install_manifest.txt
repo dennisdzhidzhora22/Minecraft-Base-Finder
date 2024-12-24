@@ -1,0 +1,7 @@
+C:/Users/denni/source/repos/Minecraft Base Finder/Minecraft Base Finder/zlib/out/install/x64-Debug/lib/zlibd.lib
+C:/Users/denni/source/repos/Minecraft Base Finder/Minecraft Base Finder/zlib/out/install/x64-Debug/bin/zlibd.dll
+C:/Users/denni/source/repos/Minecraft Base Finder/Minecraft Base Finder/zlib/out/install/x64-Debug/lib/zlibstaticd.lib
+C:/Users/denni/source/repos/Minecraft Base Finder/Minecraft Base Finder/zlib/out/install/x64-Debug/include/zconf.h
+C:/Users/denni/source/repos/Minecraft Base Finder/Minecraft Base Finder/zlib/out/install/x64-Debug/include/zlib.h
+C:/Users/denni/source/repos/Minecraft Base Finder/Minecraft Base Finder/zlib/out/install/x64-Debug/share/man/man3/zlib.3
+C:/Users/denni/source/repos/Minecraft Base Finder/Minecraft Base Finder/zlib/out/install/x64-Debug/share/pkgconfig/zlib.pc

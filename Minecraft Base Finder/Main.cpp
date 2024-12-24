@@ -215,7 +215,7 @@ int main() {
 	}
 
 	oFile.open("uncompressedOutput.txt", ios::binary);
-	adler32()
+	//adler32()
 
 	for (int i = 0; i < len; i++)
 		oFile << chunkDataUncomp[i];
