@@ -36,3 +36,11 @@ Steps to completion:
 -	- Note: I'm almost definitely allocating more memory than needed for chunk data, but there's probably no need to trim it down since it'll be deallocated anyway.
 -	-	- Also, I need to update this log
 -	- The zlib library is now (12/24/24) correctly transferrable over github, had to change .gitignore and some linker configurations
+
+4. Clean up and restructure code (1/8/25)
+	a. Add comments where it helps
+-	- Added comments to functions and other places to decrease the time it takes to understand what's going on.
+	b. Restructure code to support more than one region file
+-	- Up until now things were written only to make the main functionality, this was done in a way that only 1 chunk of 1 region file was used.
+-	- I'll make a class for region files, test again with just 1 chunk, then try all chunks and then all region files.
+-	-	- (1/9/25) Progress with the class is good, header and compressed chunk functionality is done. Next will be testing output to a txt file for just 1 and then 1024 chunks.

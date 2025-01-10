@@ -10,6 +10,7 @@
 
 using namespace std;
 
+// Doubles the size of a dynamic array
 template <typename T>
 void resizeDynArr(T* &arr, int &size)
 {
@@ -26,6 +27,7 @@ void resizeDynArr(T* &arr, int &size)
 	arr = newArray;
 }
 
+// Copies header data into array
 void CopyHeaderData(unsigned char header1[], ifstream& inFile)
 {
 	inFile.open("r.0.0.mca", ios::binary);
@@ -53,6 +55,7 @@ void CopyHeaderData(unsigned char header1[], ifstream& inFile)
 	//outFile.close();
 }
 
+// Reads and organizes data from header array into chunkInfo array
 void ParseHeader(unsigned char header2[], int** chunkInfo)
 {
 	int offset = 0; //Offset from start of file in 4KiB sections.
@@ -94,6 +97,7 @@ void ParseHeader(unsigned char header2[], int** chunkInfo)
 	cout << dec << chunkInfo[0][3] << endl << "test123" << endl;
 }
 
+// Writes a single chunk's compressed data into a vector
 void readChunk(int offset, int sectorCount, vector<unsigned char>& chunkDataCompressed, ifstream& inFile)
 {
 	//Testing getting and setting of position in file stream
@@ -128,7 +132,7 @@ void readChunk(int offset, int sectorCount, vector<unsigned char>& chunkDataComp
 
 	compressionType = inFile.get();
 
-	cout << "Length of compressed chunk data is " << length << " bytes.\n" <<
+	cout << "Length of compressed chunk data is " << length << " OR " << sectorCount << " bytes.\n" <<
 		"Compression type of chunk data is " << int(compressionType) << ".\n";
 
 	chunkDataCompressed.resize(length - 1);
@@ -136,7 +140,7 @@ void readChunk(int offset, int sectorCount, vector<unsigned char>& chunkDataComp
 	for (int remaining = length - 1; remaining > 0; remaining--)
 	{
 		unsigned char tempChar = inFile.get();
-		chunkDataCompressed[4929 - remaining] = tempChar;
+		chunkDataCompressed[4929 - remaining] = tempChar; // This 4929 looks weird, may need to be changed
 	}
 	cout << inFile.tellg() << " - Current Position in File, peek = " << inFile.peek() << "\n";
 
@@ -145,12 +149,12 @@ void readChunk(int offset, int sectorCount, vector<unsigned char>& chunkDataComp
 int main() {
 	unsigned char* header = new unsigned char[8192]();
 
-	int** chunkInfo = new int* [1024];
+	int** chunkInfo = new int* [1024]; // Array of arrays which hold offset and sector size for each chunk
 
 	for (int i = 0; i < 1024; i++)
 	{
 		assert(i < 1024);
-		chunkInfo[i] = new int[4];
+		chunkInfo[i] = new int[4]; // Currently you can hold 4 integers for each chunk, but this can be changed if needed
 	}
 
 	//cout << "\"" << static_cast<int>(header[3]) << "\"" << endl;
@@ -168,7 +172,7 @@ int main() {
 
 	//cout << "\"" << static_cast<int>(header[5]) << "\"" << endl;
 
-	vector<unsigned char> chunkDataComp;
+	vector<unsigned char> chunkDataComp; // Holds compressed data for 1 chunk
 
 	readChunk(chunkInfo[0][3], chunkInfo[0][2], chunkDataComp, iFile);
 
@@ -178,7 +182,7 @@ int main() {
 		chunkDataComp1[i] = chunkDataComp[i];
 	}
 
-	cout << "Last element in vector is " << chunkDataComp.back() << "\n";
+	cout << "Last element in vector is " << hex << int(chunkDataComp.back()) << "\n";
 
 
 	/*for (int i = 0; i < 4929; i++)
@@ -205,10 +209,13 @@ int main() {
 
 	int ret = uncompress(chunkDataUncomp, &destLen, chunkDataComp1, chunkDataComp.size());
 
-	while (ret == Z_BUF_ERROR && ret != Z_OK)
+	while (ret == Z_BUF_ERROR && ret != Z_OK) // While not enough space in destination, resize and try again
 	{
 		if (ret == Z_MEM_ERROR)
+		{
+			std::cout << "\nZ_MEM_ERROR\n";
 			break;
+		}
 		resizeDynArr(chunkDataUncomp, len);
 		destLen = len;
 		ret = uncompress(chunkDataUncomp, &destLen, chunkDataComp1, chunkDataComp.size());
@@ -217,7 +224,7 @@ int main() {
 	oFile.open("uncompressedOutput.txt", ios::binary);
 	//adler32()
 
-	for (int i = 0; i < len; i++)
+	for (int i = 0; i < len; i++) // Writes uncompressed chunk data to file
 		oFile << chunkDataUncomp[i];
 
 
@@ -229,6 +236,7 @@ int main() {
 	cout << "Finished";
 
 	delete[] header;
+	delete[] chunkDataUncomp;
 
 	for (int i = 1; i < 1024; i++)
 	{
