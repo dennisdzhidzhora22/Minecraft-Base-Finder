@@ -1,4 +1,4 @@
-* zlib/* linguist-vendored
+zlib/* linguist-vendored
 
 ###############################################################################
 # Set default behavior to automatically normalize line endings.
