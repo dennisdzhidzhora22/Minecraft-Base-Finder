@@ -1,4 +1,7 @@
-"Minecraft Base Finder"/zlib/** linguist-vendored
+[[:space:]]
+# as in
+has[[:space:]]spaces
+Minecraft Base Finder/zlib/** linguist-vendored
 
 ###############################################################################
 # Set default behavior to automatically normalize line endings.
