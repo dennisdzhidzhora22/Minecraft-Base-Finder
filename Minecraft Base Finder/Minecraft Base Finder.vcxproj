@@ -24,6 +24,7 @@
     <ProjectGuid>{b9c70ea2-f9b9-4ea7-9114-f0fefebd7880}</ProjectGuid>
     <RootNamespace>MinecraftBaseFinder</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Minecraft Base Finder</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
