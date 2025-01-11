@@ -13,6 +13,7 @@ private:
 	int** chunkInfo = new int* [1024]; // Array of arrays which hold offset and sector size for each chunk
 	std::vector<std::vector<unsigned char>> chunkDataCompressed;
 	std::vector<std::vector<unsigned char>> chunkDataUncompressed;
+	nbt::tag_compound tagComp;
 	std::ifstream iFile;
 	std::ofstream oFile;
 	std::string filePath = "";

@@ -44,3 +44,4 @@ Steps to completion:
 -	- Up until now things were written only to make the main functionality, this was done in a way that only 1 chunk of 1 region file was used.
 -	- I'll make a class for region files, test again with just 1 chunk, then try all chunks and then all region files.
 -	-	- (1/9/25) Progress with the class is good, header and compressed chunk functionality is done. Next will be testing output to a txt file for just 1 and then 1024 chunks.
+-	-	- (1/11/25) Output was tested and works. Next is chunk data decompression and finally reading the NBT data. Also fixed external library stuff and added libnbt to the project.

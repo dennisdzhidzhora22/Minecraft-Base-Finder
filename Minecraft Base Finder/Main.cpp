@@ -146,7 +146,7 @@ void readChunk(int offset, int sectorCount, vector<unsigned char>& chunkDataComp
 
 }
 
-int main() {
+int mainOld() {
 	unsigned char* header = new unsigned char[8192]();
 
 	int** chunkInfo = new int* [1024]; // Array of arrays which hold offset and sector size for each chunk

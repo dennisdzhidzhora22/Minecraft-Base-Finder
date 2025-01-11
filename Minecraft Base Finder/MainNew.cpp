@@ -13,7 +13,7 @@ using namespace std;
 
 int main() {
 	Region reg1("r.0.0.mca");
-	reg1.startTask();
+	//reg1.startTask();
 
 	return 0;
 }
