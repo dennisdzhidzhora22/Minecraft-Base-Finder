@@ -1,4 +1,5 @@
-Minecraft[[:space:]]Base[[:space:]]Finder/zlib/** linguist-vendored
+external/zlib/** linguist-vendored
+external/libnbtplusplus/** linguist-vendored
 
 ###############################################################################
 # Set default behavior to automatically normalize line endings.

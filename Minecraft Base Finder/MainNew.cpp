@@ -4,7 +4,7 @@
 #include <string>
 #include <sstream>
 #include <cassert>
-#include "zlib/zlib.h"
+#include <zlib.h>
 #include "Region.h"
 //#include <>
 #define CHUNK 16384
