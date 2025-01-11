@@ -77,12 +77,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)external\zlib\out\install\x64-Debug\include;$(SolutionDir)external\libnbtplusplus\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Minecraft Base Finder\external\zlib\out\install\x64-Debug\include;$(SolutionDir)Minecraft Base Finder\external\libnbtplusplus\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)external\zlib\out\install\x64-Debug\lib;$(SolutionDir)external\libnbtplusplus\out\build\x64-Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Minecraft Base Finder\external\zlib\out\install\x64-Debug\lib;$(SolutionDir)Minecraft Base Finder\external\libnbtplusplus\out\build\x64-Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>zlibd.lib;zlibstaticd.lib;nbt++.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -94,14 +94,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)external\zlib\out\install\x64-Debug\include;$(SolutionDir)external\libnbtplusplus\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Minecraft Base Finder\external\zlib\out\install\x64-Debug\include;$(SolutionDir)Minecraft Base Finder\external\libnbtplusplus\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)external\zlib\out\install\x64-Debug\lib;$(SolutionDir)external\libnbtplusplus\out\build\x64-Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Minecraft Base Finder\external\zlib\out\install\x64-Debug\lib;$(SolutionDir)Minecraft Base Finder\external\libnbtplusplus\out\build\x64-Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>zlibd.lib;zlibstaticd.lib;nbt++.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -111,12 +111,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)external\zlib\out\install\x64-Debug\include;$(SolutionDir)external\libnbtplusplus\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Minecraft Base Finder\external\zlib\out\install\x64-Debug\include;$(SolutionDir)Minecraft Base Finder\external\libnbtplusplus\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)external\zlib\out\install\x64-Debug\lib;$(SolutionDir)external\libnbtplusplus\out\build\x64-Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Minecraft Base Finder\external\zlib\out\install\x64-Debug\lib;$(SolutionDir)Minecraft Base Finder\external\libnbtplusplus\out\build\x64-Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>zlibd.lib;zlibstaticd.lib;nbt++.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -128,14 +128,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)external\zlib\out\install\x64-Debug\include;$(SolutionDir)external\libnbtplusplus\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Minecraft Base Finder\external\zlib\out\install\x64-Debug\include;$(SolutionDir)Minecraft Base Finder\external\libnbtplusplus\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)external\zlib\out\install\x64-Debug\lib;$(SolutionDir)external\libnbtplusplus\out\build\x64-Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Minecraft Base Finder\external\zlib\out\install\x64-Debug\lib;$(SolutionDir)Minecraft Base Finder\external\libnbtplusplus\out\build\x64-Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>zlibd.lib;zlibstaticd.lib;nbt++.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
