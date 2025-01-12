@@ -6,17 +6,36 @@
 #include <vector>
 #include <zlib.h>
 #include <io/stream_reader.h>
+#define CHUNK 16384
 
 class Region {
 private:
 	unsigned char* header = new unsigned char[8192]();
 	int** chunkInfo = new int* [1024]; // Array of arrays which hold offset and sector size for each chunk
 	std::vector<std::vector<unsigned char>> chunkDataCompressed;
-	std::vector<std::vector<unsigned char>> chunkDataUncompressed;
+	std::vector<unsigned char*> chunkDataUncompressed;
+	std::vector<int> chunkDataUncompressedLengths;
 	nbt::tag_compound tagComp;
 	std::ifstream iFile;
 	std::ofstream oFile;
 	std::string filePath = "";
+
+	// Doubles the size of a dynamic array
+	template <typename T>
+	void resizeDynArr(T*& arr, int& size)
+	{
+		int newSize = size * 2;
+		T* newArray = new T[newSize];
+
+		for (int i = 0; i < newSize; i++)
+			newArray[i] = 0; // If trimming of empty space is needed, this could be changed to something else to leave an "imprint" of where data ends
+		for (int i = 0; i < size; i++)
+			newArray[i] = arr[i];
+
+		size = newSize;
+		delete[] arr;
+		arr = newArray;
+	}
 
 	// Copies header data into array
 	void CopyHeaderData(unsigned char header1[], std::string& file, std::ifstream& inFile)
@@ -82,15 +101,6 @@ private:
 	// Writes a single chunk's compressed data into a vector. Also sets vector's size.
 	void readChunk(int offset, int sectorCount, std::vector<unsigned char>& chunkDataCompressed, std::ifstream& inFile)
 	{
-		//Testing getting and setting of position in file stream
-		/*std::cout << inFile.tellg() << " - Current Position in File, peek = " << inFile.peek() << "\n";
-		int temp1 = inFile.tellg();
-		inFile.seekg(0);
-		std::cout << inFile.tellg() << " - Current Position in File, peek = " << inFile.peek() << "\n";
-		inFile.seekg(temp1);
-		std::cout << inFile.tellg() << " - Current Position in File, peek = " << inFile.peek() << "\n";*/
-		// REMINDER - POSITION SHOULD BE SET BASED ON THE OFFSET, FOR TESTING PURPOSES LEFT AS IS
-
 		// Move to starting position of payload based on offset
 		inFile.seekg(offset * 4096);
 
@@ -132,18 +142,60 @@ private:
 
 	}
 
+	void uncompressChunk(std::vector<unsigned char>& chunkDataCompressed, unsigned char*& chunkDataUncompressed, 
+		int& chunkDataUncompressedLength) {
+		unsigned char* chunkDataCompressed1 = new unsigned char[chunkDataCompressed.size()];
+		for (int i = 0; i < chunkDataCompressed.size(); i++)
+		{
+			chunkDataCompressed1[i] = chunkDataCompressed[i];
+		}
+
+		uLong destLen = chunkDataCompressed.size();
+		chunkDataUncompressed = new unsigned char[destLen]();
+		int len = destLen;
+		chunkDataUncompressedLength = len;
+
+		int ret = uncompress(chunkDataUncompressed, &destLen, chunkDataCompressed1, chunkDataCompressed.size());
+		
+		while (ret == Z_BUF_ERROR && ret != Z_OK) // While not enough space in destination, resize and try again
+		{
+			if (ret == Z_MEM_ERROR)
+			{
+				std::cout << "\nZ_MEM_ERROR\n";
+				break;
+			}
+			resizeDynArr(chunkDataUncompressed, len);
+			destLen = len;
+			chunkDataUncompressedLength = len;
+			std::cout << "Increased size\n";
+			if (chunkDataUncompressed == nullptr) {
+				std::cout << "Something went wrong...\n";
+			}
+			else
+				std::cout << "Written successfully!\n";
+			ret = uncompress(chunkDataUncompressed, &destLen, chunkDataCompressed1, chunkDataCompressed.size());
+		}
+		chunkDataUncompressedLength = destLen + 5; // Not sure if any data is being cut off, so added 5 just in case
+
+		delete[] chunkDataCompressed1;
+	}
+
 	//Real public:
 public:
 	Region() {
 		for (int i = 0; i < 1024; i++)
 			chunkInfo[i] = new int[4];
 		chunkDataCompressed.resize(1024);
+		chunkDataUncompressed.resize(1024);
+		chunkDataUncompressedLengths.resize(1024);
 	}
 
 	Region(const std::string& file) {
 		for (int i = 0; i < 1024; i++)
 			chunkInfo[i] = new int[4];
 		chunkDataCompressed.resize(1024);
+		chunkDataUncompressed.resize(1024);
+		chunkDataUncompressedLengths.resize(1024);
 
 		filePath = file;
 		//CopyHeaderData(header, filePath, iFile);
@@ -166,8 +218,10 @@ public:
 		CopyHeaderData(header, filePath, iFile);
 		ParseHeader(header, chunkInfo);
 
+		int numOfChunks = 1;
+
 		// Chunks section
-		for (int i = 0; i < 1024; i++) {
+		for (int i = 0; i < numOfChunks; i++) {
 			readChunk(chunkInfo[i][3], chunkInfo[i][2], chunkDataCompressed[i], iFile);
 			/*oFile.open("output/o" + std::to_string(i) + filePath, std::ios::binary);
 			for (int j = 0; j < chunkDataCompressed[i].size(); j++) {
@@ -178,7 +232,21 @@ public:
 		}
 
 		// Decompression section
-
+		for (int i = 0; i < numOfChunks; i++) {
+			uncompressChunk(chunkDataCompressed[i], chunkDataUncompressed[i], chunkDataUncompressedLengths[i]);
+		}
+		//for (int i = 0; i < numOfChunks; i++) {
+		//	oFile.open("output/uncomp/uncompChunkTest" + std::to_string(i) + ".txt", std::ios::binary);
+		//	//unsigned char* uncompArr = chunkDataUncompressed[i];
+		//	for (int j = 0; j < chunkDataUncompressedLengths[i]; j++) {
+		//		oFile << chunkDataUncompressed[i][j];
+		//		/*std::cout << "About to print a value...\n";
+		//		std::cout << int(chunkDataUncompressed[0]) << "\n" << int(chunkDataUncompressed[i]) << "\n" << int(uncompArr) << "\n" << int(uncompArr == nullptr) << "\n";
+		//		std::cout << "\nDid it work?\n";*/
+		//	}
+		//	oFile.close();
+		//}
+		//oFile.close();
 
 		//std::cout << "Last element in vector is " << std::hex << int(chunkDataCompressed[0].back()) << "\n";
 		for (int i = 0; i < 6; i++) {
@@ -187,13 +255,21 @@ public:
 	}
 
 	~Region() {
+		iFile.close();
+		oFile.close();
+
 		delete[] header;
 
-		for (int i = 1; i < 1024; i++)
+		for (int i = 0; i < 1024; i++)
 		{
 			delete[] chunkInfo[i];
 		}
 		delete[] chunkInfo;
+
+		for (int i = 0; i < 1024; i++)
+		{
+			delete[] chunkDataUncompressed[i];
+		}
 	}
 };
 
