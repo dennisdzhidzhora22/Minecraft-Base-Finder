@@ -12,6 +12,7 @@
 #include <tag_array.h>
 #include <algorithm>
 #include <utility>
+#include <cassert>
 #define CHUNK 16384
 
 class Region {
