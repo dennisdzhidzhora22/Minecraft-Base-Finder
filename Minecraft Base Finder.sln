@@ -5,6 +5,8 @@ VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Minecraft Base Finder", "Minecraft Base Finder\Minecraft Base Finder.vcxproj", "{B9C70EA2-F9B9-4EA7-9114-F0FEFEBD7880}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BaseFinderView", "BaseFinderView\BaseFinderView.vcxproj", "{4D113805-BA11-4109-A70B-C39FE774ADEF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{B9C70EA2-F9B9-4EA7-9114-F0FEFEBD7880}.Release|x64.Build.0 = Release|x64
 		{B9C70EA2-F9B9-4EA7-9114-F0FEFEBD7880}.Release|x86.ActiveCfg = Release|Win32
 		{B9C70EA2-F9B9-4EA7-9114-F0FEFEBD7880}.Release|x86.Build.0 = Release|Win32
+		{4D113805-BA11-4109-A70B-C39FE774ADEF}.Debug|x64.ActiveCfg = Debug|x64
+		{4D113805-BA11-4109-A70B-C39FE774ADEF}.Debug|x64.Build.0 = Debug|x64
+		{4D113805-BA11-4109-A70B-C39FE774ADEF}.Debug|x86.ActiveCfg = Debug|x64
+		{4D113805-BA11-4109-A70B-C39FE774ADEF}.Debug|x86.Build.0 = Debug|x64
+		{4D113805-BA11-4109-A70B-C39FE774ADEF}.Release|x64.ActiveCfg = Release|x64
+		{4D113805-BA11-4109-A70B-C39FE774ADEF}.Release|x64.Build.0 = Release|x64
+		{4D113805-BA11-4109-A70B-C39FE774ADEF}.Release|x86.ActiveCfg = Release|x64
+		{4D113805-BA11-4109-A70B-C39FE774ADEF}.Release|x86.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
