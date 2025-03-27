@@ -23,8 +23,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Log.txt" />
     <Text Include="uncompressedOutput.txt" />
+    <Text Include="Log.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="r.0.0.mca">

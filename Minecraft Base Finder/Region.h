@@ -161,7 +161,7 @@ private:
 
 	void uncompressChunk(std::vector<unsigned char>& chunkDataCompressed, unsigned char*& chunkDataUncompressed, 
 		int& chunkDataUncompressedLength) {
-		unsigned char* chunkDataCompressed1 = new unsigned char[chunkDataCompressed.size()];
+		unsigned char* chunkDataCompressed1 = new unsigned char[chunkDataCompressed.size() + 1];
 		for (int i = 0; i < chunkDataCompressed.size(); i++)
 		{
 			chunkDataCompressed1[i] = chunkDataCompressed[i];
