@@ -1,0 +1,13 @@
+Switching to CMake
+- Main projects
+	- Create CMakeLists.txt
+		- Add external libraries as dependencies
+	- Set up vcpkg (json file)
+- External libraries
+	- Zlib/Zlib-ng - Get with vcpkg (will be in vcpkg_installed), then find_package
+		- Should be prebuilt
+	- libnbt++ - Get with FetchContent()
+		- Can't be prebuilt, use CMake (CMakeLists.txt already exists)
+NOTE: "external" folder will no longer be needed after dependencies are configured with CMake, they will be automatically downloaded.
+
+How does Qt work with CMake? Does it check for existence through vcpkg? Some other way? - Default paths set during installation

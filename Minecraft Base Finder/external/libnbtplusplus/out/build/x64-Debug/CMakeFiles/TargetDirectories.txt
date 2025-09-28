@@ -1,7 +1,0 @@
-C:/Users/denni/source/repos/libnbtplusplus/out/build/x64-Debug/CMakeFiles/nbt++.dir
-C:/Users/denni/source/repos/libnbtplusplus/out/build/x64-Debug/CMakeFiles/test.dir
-C:/Users/denni/source/repos/libnbtplusplus/out/build/x64-Debug/CMakeFiles/edit_cache.dir
-C:/Users/denni/source/repos/libnbtplusplus/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir
-C:/Users/denni/source/repos/libnbtplusplus/out/build/x64-Debug/test/CMakeFiles/test.dir
-C:/Users/denni/source/repos/libnbtplusplus/out/build/x64-Debug/test/CMakeFiles/edit_cache.dir
-C:/Users/denni/source/repos/libnbtplusplus/out/build/x64-Debug/test/CMakeFiles/rebuild_cache.dir

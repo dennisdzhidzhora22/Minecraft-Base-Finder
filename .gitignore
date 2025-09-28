@@ -29,10 +29,15 @@ x86/
 bld/
 [Bb]in/
 [Oo]bj/
-# [Oo]ut/
+[Oo]ut/
 [Ll]og/
 [Ll]ogs/
 documentation/
+
+# Other
+[Vv]cpkg_installed/
+[Ee]xternal/
+CMakeUserPresets.json
 
 # Test Output
 [Oo]utput/
