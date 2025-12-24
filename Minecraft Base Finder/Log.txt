@@ -45,3 +45,26 @@ Steps to completion:
 -	- I'll make a class for region files, test again with just 1 chunk, then try all chunks and then all region files.
 -	-	- (1/9/25) Progress with the class is good, header and compressed chunk functionality is done. Next will be testing output to a txt file for just 1 and then 1024 chunks.
 -	-	- (1/11/25) Output was tested and works. Next is chunk data decompression and finally reading the NBT data. Also fixed external library stuff and added libnbt to the project.
+
+
+
+12/22/25
+
+Major changes added since last log update:
+- Bare-minimum functionality (scans test region file and displays heatmap)
+- Converted to CMake project for simpler dependency management
+
+The next steps/goals are as follows:
+
+- Refactor Region.h
+	- Split into header and implementation files - DONE
+	- Optimize array resizing by allocating sufficient memory at the beginning
+	- Fix hard-coded block list in constructors (use bitset)
+		- Implement using external file for block filters
+	- Fix other stuff that could probably be done better
+
+- Make functional for more than the test region
+
+- Switch to zlib-ng eventually, not top priority
+
+- 
