@@ -59,12 +59,21 @@ The next steps/goals are as follows:
 - Refactor Region.h
 	- Split into header and implementation files - DONE
 	- Optimize array resizing by allocating sufficient memory at the beginning
+	- Rewrite readChunk to not read 1 byte at a time (avoid extra overhead)
 	- Fix hard-coded block list in constructors (use bitset)
 		- Implement using external file for block filters
 	- Fix other stuff that could probably be done better
+		- Replace some dynamic arrays and vectors with structs for better clarity (like for chunk info)
+		- Replace dynamic arrays with vectors where possible
 
 - Make functional for more than the test region
 
 - Switch to zlib-ng eventually, not top priority
 
 - 
+
+Optimizations to test:
+- 4-byte ChunkLocation struct
+
+Other things to do/try:
+- Update CMakePresets.json to be like what's in CMakeUserPresets.json for possibly better portability

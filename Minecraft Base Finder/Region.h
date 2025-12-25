@@ -15,13 +15,20 @@
 #include <cassert>
 #define CHUNK 16384
 
+struct ChunkLocation { // Could be changed to use 4 bytes, may lead to less cache misses and better performance
+	unsigned int offset;
+	unsigned int sectorCount;
+};
+
 class Region {
 private:
-	unsigned char* header = new unsigned char[8192]();
-	int** chunkInfo = new int* [1024]; // Array of arrays which hold offset and sector size for each chunk
+	//unsigned char* header = new unsigned char[8192]();
+	std::vector<unsigned char> header;
+	//int** chunkInfo = new int* [1024]; // Array of arrays which hold offset and sector size for each chunk
+	std::vector<ChunkLocation> chunkInfo; // Vector of ChunkLocation structs holding offset and sector size for each chunk
 	std::vector<std::vector<unsigned char>> chunkDataCompressed;
-	std::vector<unsigned char*> chunkDataUncompressed;
-	std::vector<int> chunkDataUncompressedLengths;
+	std::vector<std::vector<unsigned char>> chunkDataUncompressed;
+	//std::vector<int> chunkDataUncompressedLengths;
 	nbt::tag_compound tagComp;
 	std::ifstream iFile;
 	std::ofstream oFile;
@@ -42,21 +49,20 @@ private:
 	void resizeDynArr(T*& arr, int& size);
 
 	// Copies header data into array
-	void CopyHeaderData(unsigned char header1[], std::string& file, std::ifstream& inFile);
+	void CopyHeaderData(std::vector<unsigned char>& header1, const std::string& file, std::ifstream& inFile);
 
 	// Reads and organizes data from header array into chunkInfo array
-	void ParseHeader(unsigned char header2[], int** chunkInfo);
+	void ParseHeader(std::vector<unsigned char>& header2, std::vector<ChunkLocation>& chunkInfo);
 
 	// Writes a single chunk's compressed data into a vector. Also sets vector's size.
-	void readChunk(int offset, int sectorCount, std::vector<unsigned char>& chunkDataCompressed, std::ifstream& inFile);
+	void readChunk(const int offset, const int sectorCount, std::vector<unsigned char>& chunkDataCompressed, std::ifstream& inFile);
 
-	void uncompressChunk(std::vector<unsigned char>& chunkDataCompressed, unsigned char*& chunkDataUncompressed,
-		int& chunkDataUncompressedLength);
+	void uncompressChunk(std::vector<unsigned char>& chunkDataCompressed, std::vector<unsigned char>& chunkDataUncompressed);
 
 	// Returns number and variety of detected blocks in given section
 	std::pair<int, int> chunkScore(nbt::tag_list sections);
 
-	void readNBT(unsigned char*& chunkDataUncompressed, int& chunkDataUncompressedLength, int chunkNumber);
+	void readNBT(std::vector<unsigned char>& chunkDataUncompressed, int chunkNumber);
 
 	//Real public:
 public:

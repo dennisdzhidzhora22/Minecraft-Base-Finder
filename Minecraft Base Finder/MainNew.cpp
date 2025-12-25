@@ -12,8 +12,8 @@
 using namespace std;
 
 int main() {
-	Region reg1("r.0.0.mca");
-	reg1.startTask();
+	Region* reg1 = new Region("r.0.0.mca");
+	reg1->startTask();
 
 	return 0;
 }

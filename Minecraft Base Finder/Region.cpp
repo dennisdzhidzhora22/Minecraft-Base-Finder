@@ -24,30 +24,32 @@ void Region::resizeDynArr(T*& arr, int& size)
 }
 
 // Copies header data into array
-void Region::CopyHeaderData(unsigned char header1[], std::string & file, std::ifstream & inFile)
+void Region::CopyHeaderData(std::vector<unsigned char>& header1, const std::string& file, std::ifstream& inFile)
 {
 	inFile.open(file, std::ios::binary);
 
-	int i = 0;
+	//int i = 0;
 
 	if (inFile.is_open())
 	{
-		while (inFile.good() && i < 8192)
+		/*while (inFile.good() && i < 8192)
 		{
 			header1[i] = inFile.get();
 			i++;
-		}
+		}*/
+
+		inFile.read(reinterpret_cast<char*>(header1.data()), 8192);
 	}
 	else
-		std::cout << "Could not open file.\n";
+		std::cout << "Error: Could not open file " << file << "\n";
 }
 
 // Reads and organizes data from header array into chunkInfo array
-void Region::ParseHeader(unsigned char header2[], int** chunkInfo)
+void Region::ParseHeader(std::vector<unsigned char>& header2, std::vector<ChunkLocation>& chunkInfo)
 {
-	int offset = 0; //Offset from start of file in 4KiB sections.
-	int temp = 0;
-	unsigned char sectorCount = 0; //Number of 4KiB sectors used, rounded up.
+	unsigned int offset = 0; //Offset from start of file in 4KiB sections.
+	unsigned int temp = 0;
+	unsigned int sectorCount = 0; //Number of 4KiB sectors used, rounded up.
 
 	for (int i = 0; i < 4096; i += 4) // Regions may have less than 1024 chunks, so this will be changed to a while loop
 		// NVM non-blank chunks aren't always at the beginning
@@ -60,24 +62,24 @@ void Region::ParseHeader(unsigned char header2[], int** chunkInfo)
 
 		temp = header2[i + 1];
 		temp = temp << 8;
-		offset = offset ^ temp;
+		offset = offset | temp;
 		//std::cout << std::hex << temp << std::endl;
 		//std::cout << std::hex << offset << std::endl;
 
 		temp = header2[i + 2];
-		offset = offset ^ temp;
+		offset = offset | temp;
 		//std::cout << std::hex << temp << std::endl;
 		//std::cout << std::hex << offset << std::endl;
 
 		sectorCount = header2[i + 3];
 
-		assert(i < 4096);
-		chunkInfo[i / 4][3] = offset;
-		chunkInfo[i / 4][2] = sectorCount;
-		if (i / 4 == 0)
-		{
-			//std::cout << std::hex << offset << "THIS IS THE OFFSET" << std::endl;
-		}
+		//assert(i < 4096);
+		chunkInfo[i / 4].offset = offset;
+		chunkInfo[i / 4].sectorCount = sectorCount;
+		//if (i / 4 == 0)
+		//{
+		//	//std::cout << std::hex << offset << "THIS IS THE OFFSET" << std::endl;
+		//}
 		//std::cout << static_cast<int>(sectorCount) << " - SectorCount" << std::endl;
 		//std::cout << "Read to " << std::hex << i << std::dec << std::endl;
 	}
@@ -85,14 +87,19 @@ void Region::ParseHeader(unsigned char header2[], int** chunkInfo)
 }
 
 // Writes a single chunk's compressed data into a vector. Also sets vector's size.
-void Region::readChunk(int offset, int sectorCount, std::vector<unsigned char>& chunkDataCompressed, std::ifstream& inFile)
+void Region::readChunk(const int offset, const int sectorCount, std::vector<unsigned char>& chunkDataCompressed, std::ifstream& inFile)
 {
+	if (offset == 0 && sectorCount == 0) { // If chunk isn't present in region
+		chunkDataCompressed.clear();
+		return;
+	}
+
 	// Move to starting position of payload based on offset
 	inFile.seekg(offset * 4096);
 
 	int length = 0;
 	int temp = 0;
-	char compressionType = 0;
+	unsigned char compressionType = 0;
 
 	temp = inFile.get();
 	temp = temp << 24;
@@ -100,16 +107,20 @@ void Region::readChunk(int offset, int sectorCount, std::vector<unsigned char>& 
 
 	temp = inFile.get();
 	temp = temp << 16;
-	length = length ^ temp;
+	length = length | temp;
 
 	temp = inFile.get();
 	temp = temp << 8;
-	length = length ^ temp;
+	length = length | temp;
 
 	temp = inFile.get();
-	length = length ^ temp;
+	length = length | temp;
 
 	compressionType = inFile.get();
+
+	if (compressionType != 2) {
+		std::cout << "Error: Compression type is not Zlib\n";
+	}
 
 	//std::cout << "Length of compressed chunk data is " << length << /*" OR " << sectorCount <<*/ " bytes.\n" <<
 	//	"Compression type of chunk data is " << int(compressionType) << ".\n";
@@ -117,31 +128,36 @@ void Region::readChunk(int offset, int sectorCount, std::vector<unsigned char>& 
 	int payloadLen = length - 1;
 
 	chunkDataCompressed.resize(payloadLen);
+	inFile.read(reinterpret_cast<char*>(chunkDataCompressed.data()), payloadLen);
 
-	for (int remaining = length - 1; remaining > 0; remaining--)
-	{
-		unsigned char tempChar = inFile.get();
-		//chunkDataCompressed[4929 - remaining] = tempChar; // This 4929 looks weird, may need to be changed
-		chunkDataCompressed[payloadLen - remaining] = tempChar;
-	}
+	//for (int remaining = length - 1; remaining > 0; remaining--)
+	//{
+	//	unsigned char tempChar = inFile.get();
+	//	//chunkDataCompressed[4929 - remaining] = tempChar; // This 4929 looks weird, may need to be changed
+	//	chunkDataCompressed[payloadLen - remaining] = tempChar;
+	//}
+
 	//std::cout << inFile.tellg() << " - Current Position in File, peek = " << inFile.peek() << "\n";
 
 }
 
-void Region::uncompressChunk(std::vector<unsigned char>& chunkDataCompressed, unsigned char*& chunkDataUncompressed,
-	int& chunkDataUncompressedLength) {
-	unsigned char* chunkDataCompressed1 = new unsigned char[chunkDataCompressed.size() + 1];
+void Region::uncompressChunk(std::vector<unsigned char>& chunkDataCompressed, std::vector<unsigned char>& chunkDataUncompressed) {
+	/*unsigned char* chunkDataCompressed1 = new unsigned char[chunkDataCompressed.size() + 1];
 	for (int i = 0; i < chunkDataCompressed.size(); i++)
 	{
 		chunkDataCompressed1[i] = chunkDataCompressed[i];
-	}
+	}*/
 
-	uLong destLen = chunkDataCompressed.size();
+	/*uLong destLen = chunkDataCompressed.size();
 	chunkDataUncompressed = new unsigned char[destLen]();
 	int len = destLen;
-	chunkDataUncompressedLength = len;
+	chunkDataUncompressedLength = len;*/
 
-	int ret = uncompress(chunkDataUncompressed, &destLen, chunkDataCompressed1, chunkDataCompressed.size());
+	uLong destLen = 131072; // 128 KiB - overallocate to avoid resizing
+	chunkDataUncompressed.resize(destLen);
+	//int len = destLen;
+
+	int ret = uncompress(chunkDataUncompressed.data(), &destLen, chunkDataCompressed.data(), chunkDataCompressed.size());
 
 	while (ret == Z_BUF_ERROR && ret != Z_OK) // While not enough space in destination, resize and try again
 	{
@@ -150,20 +166,27 @@ void Region::uncompressChunk(std::vector<unsigned char>& chunkDataCompressed, un
 			//std::cout << "\nZ_MEM_ERROR\n";
 			break;
 		}
-		resizeDynArr(chunkDataUncompressed, len);
-		destLen = len;
-		chunkDataUncompressedLength = len;
-		//std::cout << "Increased size\n";
-		if (chunkDataUncompressed == nullptr) {
-			//std::cout << "Something went wrong...\n";
-		}
-		else
-			//std::cout << "Written successfully!\n";
-			ret = uncompress(chunkDataUncompressed, &destLen, chunkDataCompressed1, chunkDataCompressed.size());
-	}
-	chunkDataUncompressedLength = destLen + 5; // Not sure if any data is being cut off, so added 5 just in case
+		//resizeDynArr(chunkDataUncompressed, len);
+		//destLen = len;
+		//chunkDataUncompressedLength = len;
 
-	delete[] chunkDataCompressed1;
+		chunkDataUncompressed.resize(destLen * 2);
+		destLen = chunkDataUncompressed.size();
+
+		//std::cout << "Increased size\n";
+		//if (chunkDataUncompressed == nullptr) {
+		//	//std::cout << "Something went wrong...\n";
+		//}
+		//else
+		//	//std::cout << "Written successfully!\n";
+		//	ret = uncompress(chunkDataUncompressed.data(), &destLen, chunkDataCompressed.data(), chunkDataCompressed.size());
+		ret = uncompress(chunkDataUncompressed.data(), &destLen, chunkDataCompressed.data(), chunkDataCompressed.size());
+	}
+	chunkDataUncompressed.resize(destLen);
+	chunkDataUncompressed.shrink_to_fit();
+	//chunkDataUncompressedLength = destLen + 5; // Not sure if any data is being cut off, so added 5 just in case
+
+	//delete[] chunkDataCompressed1;
 }
 
 // Returns number and variety of detected blocks in given section
@@ -238,8 +261,8 @@ std::pair<int, int> Region::chunkScore(nbt::tag_list sections) {
 	return { count, variety };
 }
 
-void Region::readNBT(unsigned char*& chunkDataUncompressed, int& chunkDataUncompressedLength, int chunkNumber) {
-	std::string s(reinterpret_cast<char*>(chunkDataUncompressed), chunkDataUncompressedLength);
+void Region::readNBT(std::vector<unsigned char>& chunkDataUncompressed, int chunkNumber) {
+	std::string s(reinterpret_cast<char*>(chunkDataUncompressed.data()), chunkDataUncompressed.size());
 	std::istringstream stream(s);
 
 	nbt::io::stream_reader data(stream);
@@ -307,12 +330,14 @@ Public methods below
 *********************
 */
 
-Region::Region() {
-	for (int i = 0; i < 1024; i++)
-		chunkInfo[i] = new int[4];
-	chunkDataCompressed.resize(1024);
-	chunkDataUncompressed.resize(1024);
-	chunkDataUncompressedLengths.resize(1024);
+Region::Region() : header(8192), chunkInfo(1024), chunkDataCompressed(1024), chunkDataUncompressed(1024) {
+	/*for (int i = 0; i < 1024; i++)
+		chunkInfo[i] = new int[4];*/
+
+	//header.resize(8192);
+	//chunkDataCompressed.resize(1024);
+	//chunkDataUncompressed.resize(1024);
+	//chunkDataUncompressedLengths.resize(1024);
 
 	targetBlocks = { {(137 << 8) + 0, "Command Block"}, {(255 << 8) + 0, ""}, {(166 << 8) + 0, ""}, {(58 << 8) + 0, ""},
 					{(23 << 8) + 0, ""}, {(158 << 8) + 0, ""}, {(25 << 8) + 0, ""}, {(84 << 8) + 0, ""},
@@ -330,12 +355,13 @@ Region::Region() {
 	//std::sort(targetBlocks.begin(), targetBlocks.end());
 }
 
-Region::Region(const std::string& file) {
-	for (int i = 0; i < 1024; i++)
-		chunkInfo[i] = new int[4];
-	chunkDataCompressed.resize(1024);
-	chunkDataUncompressed.resize(1024);
-	chunkDataUncompressedLengths.resize(1024);
+Region::Region(const std::string& file) : header(8192), chunkInfo(1024), chunkDataCompressed(1024), chunkDataUncompressed(1024) {
+	/*for (int i = 0; i < 1024; i++)
+		chunkInfo[i] = new int[4];*/
+
+	//chunkDataCompressed.resize(1024);
+	//chunkDataUncompressed.resize(1024);
+	//chunkDataUncompressedLengths.resize(1024);
 
 	filePath = file;
 	//CopyHeaderData(header, filePath, iFile);
@@ -374,11 +400,11 @@ void Region::startTask() {
 	CopyHeaderData(header, filePath, iFile);
 	ParseHeader(header, chunkInfo);
 
-	int numOfChunks = 1024;
+	const int numOfChunks = 1024;
 
 	// Chunks section
 	for (int i = 0; i < numOfChunks; i++) {
-		readChunk(chunkInfo[i][3], chunkInfo[i][2], chunkDataCompressed[i], iFile);
+		readChunk(chunkInfo[i].offset, chunkInfo[i].sectorCount, chunkDataCompressed[i], iFile);
 		/*oFile.open("output/o" + std::to_string(i) + filePath, std::ios::binary);
 		for (int j = 0; j < chunkDataCompressed[i].size(); j++) {
 			oFile << chunkDataCompressed[i][j];
@@ -389,7 +415,9 @@ void Region::startTask() {
 
 	// Decompression section
 	for (int i = 0; i < numOfChunks; i++) {
-		uncompressChunk(chunkDataCompressed[i], chunkDataUncompressed[i], chunkDataUncompressedLengths[i]);
+		if (chunkDataCompressed[i].empty()) continue;
+
+		uncompressChunk(chunkDataCompressed[i], chunkDataUncompressed[i]);
 	}
 	//for (int i = 0; i < numOfChunks; i++) {
 	//	oFile.open("output/uncomp/uncompChunkTest" + std::to_string(i) + ".txt", std::ios::binary);
@@ -411,7 +439,9 @@ void Region::startTask() {
 
 	// NBT Reading Section
 	for (int i = 0; i < numOfChunks; i++) {
-		readNBT(chunkDataUncompressed[i], chunkDataUncompressedLengths[i], i);
+		if (chunkDataUncompressed[i].empty()) continue;
+
+		readNBT(chunkDataUncompressed[i], i);
 	}
 }
 
@@ -448,16 +478,16 @@ Region::~Region() {
 	iFile.close();
 	oFile.close();
 
-	delete[] header;
+	//delete[] header;
 
-	for (int i = 0; i < 1024; i++)
+	/*for (int i = 0; i < 1024; i++)
 	{
 		delete[] chunkInfo[i];
 	}
-	delete[] chunkInfo;
+	delete[] chunkInfo;*/
 
-	for (int i = 0; i < 1024; i++)
+	/*for (int i = 0; i < 1024; i++)
 	{
 		delete[] chunkDataUncompressed[i];
-	}
+	}*/
 }
