@@ -24,7 +24,7 @@ void Region::resizeDynArr(T*& arr, int& size)
 }
 
 // Copies header data into array
-void Region::CopyHeaderData(std::vector<unsigned char>& header1, const std::string& file, std::ifstream& inFile)
+void Region::copyHeaderData(std::vector<unsigned char>& header1, const std::string& file, std::ifstream& inFile)
 {
 	inFile.open(file, std::ios::binary);
 
@@ -45,7 +45,7 @@ void Region::CopyHeaderData(std::vector<unsigned char>& header1, const std::stri
 }
 
 // Reads and organizes data from header array into chunkInfo array
-void Region::ParseHeader(std::vector<unsigned char>& header2, std::vector<ChunkLocation>& chunkInfo)
+void Region::parseHeader(std::vector<unsigned char>& header2, std::vector<ChunkLocationHeader>& chunkInfo)
 {
 	unsigned int offset = 0; //Offset from start of file in 4KiB sections.
 	unsigned int temp = 0;
@@ -190,16 +190,18 @@ void Region::uncompressChunk(std::vector<unsigned char>& chunkDataCompressed, st
 }
 
 // Returns number and variety of detected blocks in given section
-std::pair<int, int> Region::chunkScore(nbt::tag_list sections) {
+std::pair<int, int> Region::getChunkScore(nbt::tag_list sections) {
 	// For now, the add array will be ignored
 
 	int count = 0;
 	int variety = 0;
 
-	std::map<unsigned int, std::string> tBlocks;
+	seenBits.reset();
+
+	/*std::map<unsigned int, std::string> tBlocks;
 	for (std::map<unsigned int, std::string>::iterator it = targetBlocks.begin(); it != targetBlocks.end(); ++it) {
 		tBlocks.insert({ it->first, it->second });
-	}
+	}*/
 
 	for (nbt::tag_list::iterator it = sections.begin(); it != sections.end(); ++it) {
 		nbt::tag_compound section = (*it).as<nbt::tag_compound>();
@@ -218,17 +220,17 @@ std::pair<int, int> Region::chunkScore(nbt::tag_list sections) {
 			if (i % 2 == 0) {
 				unsigned char temp = data[i / 2];
 				subid = temp >> 4;
-				if (id != 0 || subid != 0) {
+				//if (id != 0 || subid != 0) {
 					//std::cout << std::hex << static_cast<int>(id) << " : " << static_cast<int>(subid) << std::dec << "\n";
-				}
+				//}
 			}
 			else {
 				unsigned char temp = data[i / 2];
 				temp = temp << 4;
 				temp = temp >> 4;
-				if (id != 0 || subid != 0) {
+				//if (id != 0 || subid != 0) {
 					//std::cout << std::hex << static_cast<int>(id) << " : " << static_cast<int>(subid) << std::dec << "\n";
-				}
+				//}
 			}
 
 			std::pair<unsigned int, unsigned int> block = { id, subid };
@@ -245,11 +247,21 @@ std::pair<int, int> Region::chunkScore(nbt::tag_list sections) {
 				}
 			}*/
 
-			if (targetBlocks.find((block.first << 8) + block.second) != targetBlocks.end()) {
+			/*if (targetBlocks.find((block.first << 8) + block.second) != targetBlocks.end()) {
 				count++;
 
 				if (tBlocks.find((block.first << 8) + block.second) != tBlocks.end()) {
 					tBlocks.erase((block.first << 8) + block.second);
+					variety++;
+				}
+			}*/
+
+			unsigned int fullID = (block.first << 8) + block.second;
+			if (targetBits[fullID] == true) {
+				count++;
+
+				if (seenBits[fullID] == false) {
+					seenBits[fullID] = true;
 					variety++;
 				}
 			}
@@ -262,8 +274,14 @@ std::pair<int, int> Region::chunkScore(nbt::tag_list sections) {
 }
 
 void Region::readNBT(std::vector<unsigned char>& chunkDataUncompressed, int chunkNumber) {
-	std::string s(reinterpret_cast<char*>(chunkDataUncompressed.data()), chunkDataUncompressed.size());
-	std::istringstream stream(s);
+	/*std::string s(reinterpret_cast<char*>(chunkDataUncompressed.data()), chunkDataUncompressed.size());
+	std::istringstream stream(s);*/
+
+	char* begin = reinterpret_cast<char*>(chunkDataUncompressed.data());
+	char* end = begin + chunkDataUncompressed.size();
+
+	membuf cbuf(begin, end); // Zero-copy buffer view of chunkDataUncompressed
+	std::istream stream(&cbuf);
 
 	nbt::io::stream_reader data(stream);
 	std::pair<std::string, std::unique_ptr<nbt::tag_compound>> p = data.read_compound();
@@ -289,7 +307,7 @@ void Region::readNBT(std::vector<unsigned char>& chunkDataUncompressed, int chun
 
 	std::pair<int, int> totalscore = { 0, 0 };
 
-	totalscore = chunkScore(SectionsList);
+	totalscore = getChunkScore(SectionsList);
 
 	//for (nbt::tag_list::iterator it = SectionsList.begin(); it != SectionsList.end(); ++it) {
 	//	std::cout << "Entry: " << (*it) << " " << typeid((*it).get()).name() << "\n";
@@ -318,10 +336,15 @@ void Region::readNBT(std::vector<unsigned char>& chunkDataUncompressed, int chun
 
 	//chunkScores[chunkNumber] = totalscore;
 	//chunkPos[chunkNumber] = { xPos, zPos };
-	chunkScoreCount[chunkNumber] = totalscore.first;
+	/*chunkScoreCount[chunkNumber] = totalscore.first;
 	chunkScoreVariety[chunkNumber] = totalscore.second;
 	chunkX[chunkNumber] = xPos;
-	chunkZ[chunkNumber] = zPos;
+	chunkZ[chunkNumber] = zPos;*/
+
+	chunkScores[chunkNumber].scoreCount = totalscore.first;
+	chunkScores[chunkNumber].scoreVariety = totalscore.second;
+	chunkPositions[chunkNumber].xPos = xPos;
+	chunkPositions[chunkNumber].zPos = zPos;
 }
 
 /*
@@ -330,7 +353,7 @@ Public methods below
 *********************
 */
 
-Region::Region() : header(8192), chunkInfo(1024), chunkDataCompressed(1024), chunkDataUncompressed(1024) {
+Region::Region() : header(8192), chunkInfo(1024), chunkDataCompressed(1024), chunkDataUncompressed(1024), chunkScores(1024), chunkPositions(1024) {
 	/*for (int i = 0; i < 1024; i++)
 		chunkInfo[i] = new int[4];*/
 
@@ -353,9 +376,13 @@ Region::Region() : header(8192), chunkInfo(1024), chunkDataCompressed(1024), chu
 					{(183 << 8) + 0, ""}, {(184 << 8) + 0, ""}, {(185 << 8) + 0, ""}, {(186 << 8) + 0, ""},
 					{(187 << 8) + 0, ""}, {(101 << 8) + 0, ""} };
 	//std::sort(targetBlocks.begin(), targetBlocks.end());
+
+	for (auto const& pair : targetBlocks) {
+		targetBits[pair.first] = true;
+	}
 }
 
-Region::Region(const std::string& file) : header(8192), chunkInfo(1024), chunkDataCompressed(1024), chunkDataUncompressed(1024) {
+Region::Region(const std::string& file) : header(8192), chunkInfo(1024), chunkDataCompressed(1024), chunkDataUncompressed(1024), chunkScores(1024), chunkPositions(1024) {
 	/*for (int i = 0; i < 1024; i++)
 		chunkInfo[i] = new int[4];*/
 
@@ -383,6 +410,10 @@ Region::Region(const std::string& file) : header(8192), chunkInfo(1024), chunkDa
 					{(183 << 8) + 0, ""}, {(184 << 8) + 0, ""}, {(185 << 8) + 0, ""}, {(186 << 8) + 0, ""},
 					{(187 << 8) + 0, ""}, {(101 << 8) + 0, ""} };
 	//std::sort(targetBlocks.begin(), targetBlocks.end());
+
+	for (auto const& pair : targetBlocks) {
+		targetBits[pair.first] = true;
+	}
 }
 
 void Region::setFilePath(const std::string& file) {
@@ -397,8 +428,8 @@ void Region::startTask() {
 	}
 
 	// Header section
-	CopyHeaderData(header, filePath, iFile);
-	ParseHeader(header, chunkInfo);
+	copyHeaderData(header, filePath, iFile);
+	parseHeader(header, chunkInfo);
 
 	const int numOfChunks = 1024;
 
@@ -462,16 +493,19 @@ void Region::startTask() {
 }*/
 
 int Region::getChunkScoreCount(int i) {
-	return chunkScoreCount[i];
+	//return chunkScoreCount[i];
+	return chunkScores[i].scoreCount;
 }
 int Region::getChunkScoreVariety(int i) {
-	return chunkScoreVariety[i];
+	//return chunkScoreVariety[i];
+	return chunkScores[i].scoreVariety;
 }
 int Region::getChunkX(int i) {
-	return chunkX[i];
+	//return chunkX[i];
+	return chunkPositions[i].xPos;
 }
 int Region::getChunkZ(int i) {
-	return chunkZ[i];
+	return chunkPositions[i].zPos;
 }
 
 Region::~Region() {

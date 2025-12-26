@@ -58,13 +58,18 @@ The next steps/goals are as follows:
 
 - Refactor Region.h
 	- Split into header and implementation files - DONE
-	- Optimize array resizing by allocating sufficient memory at the beginning
-	- Rewrite readChunk to not read 1 byte at a time (avoid extra overhead)
+	- Optimize array resizing by allocating sufficient memory at the beginning - DONE
+	- Rewrite readChunk to not read 1 byte at a time (avoid extra overhead) - DONE
 	- Fix hard-coded block list in constructors (use bitset)
 		- Implement using external file for block filters
+		- Change to bitset - DONE
 	- Fix other stuff that could probably be done better
 		- Replace some dynamic arrays and vectors with structs for better clarity (like for chunk info)
-		- Replace dynamic arrays with vectors where possible
+			- Done for chunkInfo
+		- Replace dynamic arrays with vectors where possible - AFAIK DONE
+		- Optimize readNBT - DONE
+		- Optimize chunkScore - PARTIAL
+	- Clean up old commented out code
 
 - Make functional for more than the test region
 
