@@ -64,11 +64,12 @@ The next steps/goals are as follows:
 		- Implement using external file for block filters
 		- Change to bitset - DONE
 	- Fix other stuff that could probably be done better
-		- Replace some dynamic arrays and vectors with structs for better clarity (like for chunk info)
-			- Done for chunkInfo
+		- Replace some dynamic arrays and vectors with structs for better clarity (like for chunk info) - DONE
+			- Done for chunkInfo, all others
 		- Replace dynamic arrays with vectors where possible - AFAIK DONE
 		- Optimize readNBT - DONE
-		- Optimize chunkScore - PARTIAL
+		- Optimize chunkScore - DONE
+			- Fix incorrect logic for reading nibbles (4-bit) - DONE
 	- Clean up old commented out code
 
 - Make functional for more than the test region

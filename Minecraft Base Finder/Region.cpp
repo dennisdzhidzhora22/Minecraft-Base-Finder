@@ -208,32 +208,39 @@ std::pair<int, int> Region::getChunkScore(nbt::tag_list sections) {
 		nbt::tag_byte_array blocks = section["Blocks"].as<nbt::tag_byte_array>();
 		nbt::tag_byte_array data = section["Data"].as<nbt::tag_byte_array>();
 
+		if (!section.has_key("Blocks") || !section.has_key("Data")) {
+			continue;
+		}
+
 		for (int i = 0; i < 4096; i++) {
 			unsigned char id = blocks[i];
 			unsigned char subid = 0;
+
+			if (i % 2 == 0) { // Even-numbered blocks
+				unsigned char temp = data[i / 2];
+				//subid = temp >> 4;
+				subid = temp & 0x0F;
+				//if (id != 0 || subid != 0) {
+					//std::cout << std::hex << static_cast<int>(id) << " : " << static_cast<int>(subid) << std::dec << "\n";
+				//}
+			}
+			else { // Odd-numbered blocks
+				unsigned char temp = data[i / 2];
+				//temp = temp << 4;
+				//temp = temp >> 4;
+				subid = temp & 0xF0;
+				subid = subid >> 4;
+				//if (id != 0 || subid != 0) {
+					//std::cout << std::hex << static_cast<int>(id) << " : " << static_cast<int>(subid) << std::dec << "\n";
+				//}
+			}
 
 			// Exclude most common blocks
 			if (id == 0 || (id == 1 && subid == 0) || id == 2 || id == 3 || id == 8 || id == 9 || id == 12 || id == 18 || id == 24) {
 				continue;
 			}
 
-			if (i % 2 == 0) {
-				unsigned char temp = data[i / 2];
-				subid = temp >> 4;
-				//if (id != 0 || subid != 0) {
-					//std::cout << std::hex << static_cast<int>(id) << " : " << static_cast<int>(subid) << std::dec << "\n";
-				//}
-			}
-			else {
-				unsigned char temp = data[i / 2];
-				temp = temp << 4;
-				temp = temp >> 4;
-				//if (id != 0 || subid != 0) {
-					//std::cout << std::hex << static_cast<int>(id) << " : " << static_cast<int>(subid) << std::dec << "\n";
-				//}
-			}
-
-			std::pair<unsigned int, unsigned int> block = { id, subid };
+			//std::pair<unsigned int, unsigned int> block = { id, subid };
 
 			// If found in target blocks
 			// This is very very slow, consider changing the vector to a map and 
@@ -256,7 +263,7 @@ std::pair<int, int> Region::getChunkScore(nbt::tag_list sections) {
 				}
 			}*/
 
-			unsigned int fullID = (block.first << 8) + block.second;
+			unsigned int fullID = (id << 8) + subid;
 			if (targetBits[fullID] == true) {
 				count++;
 
