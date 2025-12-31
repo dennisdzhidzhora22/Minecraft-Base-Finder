@@ -38,6 +38,17 @@ documentation/
 [Vv]cpkg_installed/
 [Ee]xternal/
 CMakeUserPresets.json
+Chunk.h
+compressedOriginal.txt
+Minecraft Base Finder/Main.cpp
+Minecraft Base Finder/MainNew.cpp
+r.0.0.txt
+reCompressedOutput.txt
+uncompChunkTest22.txt
+uncompressedOutput.nbt
+uncompressedOutput.txt
+Minecraft Base Finder/zlibd.dll
+BaseFinderView/zlibd.dll
 
 # Test Output
 [Oo]utput/

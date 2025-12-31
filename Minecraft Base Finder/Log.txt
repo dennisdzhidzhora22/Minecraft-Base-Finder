@@ -83,3 +83,17 @@ Optimizations to test:
 
 Other things to do/try:
 - Update CMakePresets.json to be like what's in CMakeUserPresets.json for possibly better portability
+
+
+
+12/29/25
+
+Above topics will be revisited later
+Next step:
+
+- Implement BlockFilter class
+	- Goals:
+		- Separate the the targetBlocks map and bitsets from Region to avoid repeated initialization for each new Region instance
+		- Support sharing the filter across multiple instances of Region
+		- Initialize filter from external JSON file
+		- (Future) Support user configuration and saving to file
