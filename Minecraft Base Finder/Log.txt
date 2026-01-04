@@ -93,7 +93,15 @@ Next step:
 
 - Implement BlockFilter class
 	- Goals:
-		- Separate the the targetBlocks map and bitsets from Region to avoid repeated initialization for each new Region instance
-		- Support sharing the filter across multiple instances of Region
-		- Initialize filter from external JSON file
+		- Separate the the targetBlocks map and bitsets from Region to avoid repeated initialization for each new Region instance - DONE
+		- Support sharing the filter across multiple instances of Region - DONE
+		- Initialize filter from external JSON file - DONE
+			- went with custom format instead of JSON
 		- (Future) Support user configuration and saving to file
+
+
+
+1/3/26
+
+Implemented BlockFilter
+Fixed bug in chunkScore - was checking if Blocks and Data arrays exist after trying to access them, moved check before access

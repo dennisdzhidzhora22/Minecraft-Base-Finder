@@ -15,6 +15,7 @@
 #include <cassert>
 #include <bitset>
 #include <unordered_map>
+#include "BlockFilter.h"
 constexpr auto CHUNK = 16384;
 
 struct membuf : std::streambuf {
@@ -47,8 +48,7 @@ private:
 	std::ifstream iFile;
 	std::ofstream oFile;
 	std::string filePath = "";
-	std::unordered_map<unsigned int, std::string> targetBlocks; // Vector of block id and sub-id for blocks to scan for
-	std::bitset<65536> targetBits;
+	const BlockFilter* filter;
 	std::bitset<65536> seenBits;
 
 	// Holds number and variety of detected blocks for each chunk, then x and z coordinate
@@ -76,9 +76,9 @@ private:
 	void readNBT(std::vector<unsigned char>& chunkDataUncompressed, int chunkNumber);
 
 public:
-	Region();
+	Region(const BlockFilter& filterRef);
 
-	Region(const std::string& file);
+	Region(const std::string& file, const BlockFilter& filterRef);
 
 	void setFilePath(const std::string& file);
 

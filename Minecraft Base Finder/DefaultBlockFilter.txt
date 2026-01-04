@@ -1,0 +1,66 @@
+# Format:
+# Name, ID, subID, AddID, Weight 
+# 1 block per line
+
+# Using -1 for subID to match any type of beacon
+# minecraft:beacons, 138, -1, 0, 3
+
+# --- Technical / OP Blocks ---
+minecraft:command_block, 137, 0, 0, 1
+minecraft:structure_block, 255, 0, 0, 1
+minecraft:barrier, 166, 0, 0, 1
+minecraft:structure_void, 217, 0, 0, 1
+
+# --- Utility Blocks ---
+minecraft:crafting_table, 58, 0, 0, 1
+minecraft:dispenser, 23, 0, 0, 1
+minecraft:dropper, 158, 0, 0, 1
+minecraft:hopper, 154, 0, 0, 1
+minecraft:beacon, 138, 0, 0, 1
+minecraft:ender_chest, 130, 0, 0, 1
+minecraft:anvil, 145, 0, 0, 1
+minecraft:chipped_anvil, 145, 1, 0, 1
+minecraft:damaged_anvil, 145, 2, 0, 1
+minecraft:enchanting_table, 116, 0, 0, 1
+minecraft:brewing_stand, 117, 0, 0, 1
+minecraft:bed, 26, 0, 0, 1
+
+# --- Redstone Components ---
+minecraft:redstone_wire, 55, 0, 0, 1
+minecraft:redstone_lamp, 123, 0, 0, 1
+minecraft:lit_redstone_lamp, 124, 0, 0, 1
+minecraft:piston, 33, 0, 0, 1
+minecraft:sticky_piston, 29, 0, 0, 1
+minecraft:piston_head, 34, 0, 0, 1
+minecraft:lever, 69, 0, 0, 1
+minecraft:wooden_button, 143, 0, 0, 1
+minecraft:stone_button, 77, 0, 0, 1
+minecraft:stone_pressure_plate, 70, 0, 0, 1
+minecraft:wooden_pressure_plate, 72, 0, 0, 1
+minecraft:light_weighted_pressure_plate, 147, 0, 0, 1
+minecraft:heavy_weighted_pressure_plate, 148, 0, 0, 1
+minecraft:unpowered_repeater, 93, 0, 0, 1
+minecraft:powered_repeater, 94, 0, 0, 1
+minecraft:unpowered_comparator, 149, 0, 0, 1
+minecraft:powered_comparator, 150, 0, 0, 1
+
+# --- Music ---
+minecraft:noteblock, 25, 0, 0, 1
+minecraft:jukebox, 84, 0, 0, 1
+
+# --- Misc / Decoration ---
+minecraft:tnt, 46, 0, 0, 1
+minecraft:standing_sign, 63, 0, 0, 1
+minecraft:wall_sign, 68, 0, 0, 1
+minecraft:iron_door, 71, 0, 0, 1
+minecraft:ladder, 65, 0, 0, 1
+minecraft:iron_bars, 101, 0, 0, 1
+minecraft:blue_shulker_box, 230, 0, 0, 1
+minecraft:white_wool, 35, 0, 0, 1
+minecraft:oak_fence_gate, 107, 0, 0, 1
+minecraft:flower_pot, 140, 0, 0, 1
+minecraft:spruce_fence_gate, 183, 0, 0, 1
+minecraft:birch_fence_gate, 184, 0, 0, 1
+minecraft:jungle_fence_gate, 185, 0, 0, 1
+minecraft:dark_oak_fence_gate, 186, 0, 0, 1
+minecraft:acacia_fence_gate, 187, 0, 0, 1

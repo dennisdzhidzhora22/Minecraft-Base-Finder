@@ -140,12 +140,13 @@ std::pair<int, int> Region::getChunkScore(nbt::tag_list sections) {
 
 	for (nbt::tag_list::iterator it = sections.begin(); it != sections.end(); ++it) {
 		nbt::tag_compound section = (*it).as<nbt::tag_compound>();
-		nbt::tag_byte_array blocks = section["Blocks"].as<nbt::tag_byte_array>();
-		nbt::tag_byte_array data = section["Data"].as<nbt::tag_byte_array>();
 
 		if (!section.has_key("Blocks") || !section.has_key("Data")) {
 			continue;
 		}
+
+		nbt::tag_byte_array blocks = section["Blocks"].as<nbt::tag_byte_array>();
+		nbt::tag_byte_array data = section["Data"].as<nbt::tag_byte_array>();
 
 		for (int i = 0; i < 4096; i++) {
 			unsigned char id = blocks[i];
@@ -167,7 +168,7 @@ std::pair<int, int> Region::getChunkScore(nbt::tag_list sections) {
 			}
 
 			unsigned int fullID = (id << 8) + subid;
-			if (targetBits[fullID] == true) {
+			if (filter->isTarget(fullID)) {
 				count++;
 
 				if (seenBits[fullID] == false) {
@@ -214,46 +215,14 @@ Public methods below
 *********************
 */
 
-Region::Region() : header(8192), chunkInfo(1024), chunkDataCompressed(1024), chunkDataUncompressed(1024), chunkScores(1024), chunkPositions(1024) {
-	targetBlocks = { {(137 << 8) + 0, "Command Block"}, {(255 << 8) + 0, ""}, {(166 << 8) + 0, ""}, {(58 << 8) + 0, ""},
-					{(23 << 8) + 0, ""}, {(158 << 8) + 0, ""}, {(25 << 8) + 0, ""}, {(84 << 8) + 0, ""},
-					{(116 << 8) + 0, ""}, {(117 << 8) + 0, ""}, {(145 << 8) + 0, ""}, {(145 << 8) + 1, ""},
-					{(145 << 8) + 2, ""}, {(154 << 8) + 0, ""}, {(138 << 8) + 0, ""}, {(130 << 8) + 0, ""},
-					{(55 << 8) + 0, ""}, {(123 << 8) + 0, ""}, {(124 << 8) + 0, ""}, {(33 << 8) + 0, ""},
-					{(35 << 8) + 0, ""}, {(34 << 8) + 0, ""}, {(29 << 8) + 0, ""}, {(69 << 8) + 0, ""}, //35 was meant to replace a duplicate 33
-					{(143 << 8) + 0, ""}, {(77 << 8) + 0, ""}, {(70 << 8) + 0, ""}, {(72 << 8) + 0, ""},
-					{(147 << 8) + 0, ""}, {(148 << 8) + 0, ""}, {(93 << 8) + 0, ""}, {(94 << 8) + 0, ""},
-					{(149 << 8) + 0, ""}, {(150 << 8) + 0, ""}, {(218 << 8) + 0, ""}, {(46 << 8) + 0, ""},
-					{(63 << 8) + 0, ""}, {(68 << 8) + 0, ""}, {(140 << 8) + 0, ""}, {(26 << 8) + 0, ""},
-					{(71 << 8) + 0, ""}, {(65 << 8) + 0, ""}, {(229 << 8) + 0, ""}, {(107 << 8) + 0, ""},
-					{(183 << 8) + 0, ""}, {(184 << 8) + 0, ""}, {(185 << 8) + 0, ""}, {(186 << 8) + 0, ""},
-					{(187 << 8) + 0, ""}, {(101 << 8) + 0, ""} };
+Region::Region(const BlockFilter& filterRef) : header(8192), chunkInfo(1024), chunkDataCompressed(1024), chunkDataUncompressed(1024),
+											   chunkScores(1024), chunkPositions(1024), filter(&filterRef) {
 
-	for (auto const& pair : targetBlocks) {
-		targetBits[pair.first] = true;
-	}
 }
 
-Region::Region(const std::string& file) : header(8192), chunkInfo(1024), chunkDataCompressed(1024), chunkDataUncompressed(1024), chunkScores(1024), chunkPositions(1024) {
+Region::Region(const std::string& file, const BlockFilter& filterRef) : header(8192), chunkInfo(1024), chunkDataCompressed(1024), chunkDataUncompressed(1024),
+																		chunkScores(1024), chunkPositions(1024), filter(&filterRef) {
 	filePath = file;
-
-	targetBlocks = { {(137 << 8) + 0, "Command Block"}, {(255 << 8) + 0, ""}, {(166 << 8) + 0, ""}, {(58 << 8) + 0, ""},
-					{(23 << 8) + 0, ""}, {(158 << 8) + 0, ""}, {(25 << 8) + 0, ""}, {(84 << 8) + 0, ""},
-					{(116 << 8) + 0, ""}, {(117 << 8) + 0, ""}, {(145 << 8) + 0, ""}, {(145 << 8) + 1, ""},
-					{(145 << 8) + 2, ""}, {(154 << 8) + 0, ""}, {(138 << 8) + 0, ""}, {(130 << 8) + 0, ""},
-					{(55 << 8) + 0, ""}, {(123 << 8) + 0, ""}, {(124 << 8) + 0, ""}, {(33 << 8) + 0, ""},
-					{(35 << 8) + 0, ""}, {(34 << 8) + 0, ""}, {(29 << 8) + 0, ""}, {(69 << 8) + 0, ""}, //35 was meant to replace a duplicate 33
-					{(143 << 8) + 0, ""}, {(77 << 8) + 0, ""}, {(70 << 8) + 0, ""}, {(72 << 8) + 0, ""},
-					{(147 << 8) + 0, ""}, {(148 << 8) + 0, ""}, {(93 << 8) + 0, ""}, {(94 << 8) + 0, ""},
-					{(149 << 8) + 0, ""}, {(150 << 8) + 0, ""}, {(218 << 8) + 0, ""}, {(46 << 8) + 0, ""},
-					{(63 << 8) + 0, ""}, {(68 << 8) + 0, ""}, {(140 << 8) + 0, ""}, {(26 << 8) + 0, ""},
-					{(71 << 8) + 0, ""}, {(65 << 8) + 0, ""}, {(229 << 8) + 0, ""}, {(107 << 8) + 0, ""},
-					{(183 << 8) + 0, ""}, {(184 << 8) + 0, ""}, {(185 << 8) + 0, ""}, {(186 << 8) + 0, ""},
-					{(187 << 8) + 0, ""}, {(101 << 8) + 0, ""} };
-
-	for (auto const& pair : targetBlocks) {
-		targetBits[pair.first] = true;
-	}
 }
 
 void Region::setFilePath(const std::string& file) {

@@ -12,7 +12,10 @@
 using namespace std;
 
 int main() {
-	Region* reg1 = new Region("r.0.0.mca");
+	BlockFilter* defaultFilter = new BlockFilter;
+	defaultFilter->loadDefault();
+
+	Region* reg1 = new Region("r.0.0.mca", *defaultFilter);
 	reg1->startTask();
 
 	return 0;
