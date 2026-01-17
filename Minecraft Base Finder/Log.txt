@@ -51,8 +51,8 @@ Steps to completion:
 12/22/25
 
 Major changes added since last log update:
-- Bare-minimum functionality (scans test region file and displays heatmap)
-- Converted to CMake project for simpler dependency management
+- Bare-minimum functionality (scans test region file and displays heatmap) (March 2025)
+- Converted to CMake project for simpler dependency management (Sept-Oct 2025)
 
 The next steps/goals are as follows:
 
@@ -60,8 +60,8 @@ The next steps/goals are as follows:
 	- Split into header and implementation files - DONE
 	- Optimize array resizing by allocating sufficient memory at the beginning - DONE
 	- Rewrite readChunk to not read 1 byte at a time (avoid extra overhead) - DONE
-	- Fix hard-coded block list in constructors (use bitset)
-		- Implement using external file for block filters
+	- Fix hard-coded block list in constructors (use bitset) - DONE
+		- Implement using external file for block filters - DONE
 		- Change to bitset - DONE
 	- Fix other stuff that could probably be done better
 		- Replace some dynamic arrays and vectors with structs for better clarity (like for chunk info) - DONE
@@ -70,7 +70,7 @@ The next steps/goals are as follows:
 		- Optimize readNBT - DONE
 		- Optimize chunkScore - DONE
 			- Fix incorrect logic for reading nibbles (4-bit) - DONE
-	- Clean up old commented out code
+	- Clean up old commented out code - Mostly DONE
 
 - Make functional for more than the test region
 
@@ -105,3 +105,61 @@ Next step:
 
 Implemented BlockFilter
 Fixed bug in chunkScore - was checking if Blocks and Data arrays exist after trying to access them, moved check before access
+
+Further optimizations for Region:
+- Split NBT parsing into separate class
+- Instead of doing one step for every chunk at a time, do every step for one chunk at a time. (don't need to store all chunk data, just data for the one chunk.)
+  (May also help with CPU performance - cache locality benefits)
+- See where smart pointers can be used (BaseFinderView.cpp, use shared for BlockFilter, unique for Region)
+- Implement actual error handling, bounds checking, etc
+
+Besides that, it looks like working on the UI again is next.
+
+
+
+1/11/26
+
+Now focusing on UI. This is the plan so far:
+
+- Scan all region files of a world (single threaded for now) - DONE
+	Instead of making a huge QImage based on the boundaries of the world, which will waste memory,
+	a QImage tile can be made for each region, then added to the QGraphicsView. - DONE
+
+and before that,
+- Add world folder selection - DONE
+	- Display # of region files in folder - DONE
+
+Also some things I'd like to do with Region.h:
+- Improve/add comments
+- Unit tests
+
+
+
+1/15/26
+
+Made significant progress, detailed below
+- Implemented multithreading with QThreadPool (which automatically creates and manages as many threads as a system can support)
+  GUI runs on the main thread, with region scans running on threads in the pool
+  Made task class for QThreadPool, defined in RegionTask.h
+- Added region folder selection in UI
+- Added start button disable during scan
+- Added map panning (dragging)
+- Added chunk/block coords indicator based on position of mouse over map
+- And added a bunch of signals/slots/connections to make it all work
+
+As an observation, it feels like development with Qt is much faster than I expected now that I know it well enough.
+
+To do next:
+- Add to/fix filter (doesn't cover all significant blocks)
+- Implement pause button functionality (be mindful of threads)
+- Add progress bar? or number of regions scanned out of all
+- Revisit scoring logic
+- Set default directory for region folder selection to the saves folder in default location of minecraft
+  (Will need to adjust for non-windows platforms)
+- Make coords indicator cleaner, maybe add padding around text
+- Change default background color for map to something more comfortable/less bright (gray?)
+- Change setting of sceneRect from hard-coded values to 3-5x most distant coord from center
+- Change order of regions in the set to be sorted by sum of absolute value of coords (or dist of coords w/ pythag. theor?)
+
+But before that,
+- Add error handling, comments

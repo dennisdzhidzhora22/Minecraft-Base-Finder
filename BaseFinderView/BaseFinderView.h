@@ -1,9 +1,8 @@
 #pragma once
 
 #include <QtWidgets/QWidget>
-#include "ui_BaseFinderView.h"
 #include <QImage>
-#include <utility>
+#include "ui_BaseFinderView.h"
 
 class BaseFinderView : public QWidget
 {
@@ -14,8 +13,19 @@ public:
     ~BaseFinderView();
 
 private:
+    std::u16string regionsDirectory;
+    int numReg = 0;
+    int activeTasks = 0;
+    bool alreadyScanned = false;
+
+    QLabel* coordLabel;
+    QGraphicsScene* scene;
+
     Ui::BaseFinderViewClass ui;
 
 private slots:
-    void on_startButton_clicked();
+    void startScan();
+    void openRegionFileDialog();
+    void updateCoords(int x, int z);
+    void addRegion(QImage image, int x, int z);
 };

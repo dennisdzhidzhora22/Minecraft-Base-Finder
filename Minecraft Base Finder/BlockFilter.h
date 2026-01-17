@@ -7,6 +7,7 @@ class BlockFilter {
 private:
 	std::unordered_map<unsigned int, std::string> targetBlocks; // Map of block ID and name of blocks to scan for
 	std::bitset<65536> targetBits;
+	bool ready = false;
 
 	void loadFile(const std::string& filterFile);
 

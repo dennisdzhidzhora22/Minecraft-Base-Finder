@@ -2,12 +2,14 @@ set(SOURCES
     BaseFinderView.cpp
     main.cpp
     stdafx.cpp
+    RegionTask.cpp
 )
 
 set(HEADERS 
     BaseFinderView.h
     ZoomableGraphicsView.h
     stdafx.h
+    RegionTask.h
 )
 
 set(UI_FILES 

@@ -50,10 +50,12 @@ BlockFilter::BlockFilter() {
 
 void BlockFilter::loadDefault() {
 	loadFile("DefaultBlockFilter.txt");
+	ready = true;
 }
 
 void BlockFilter::loadCustom(const std::string& filterFile) {
 	loadFile(filterFile);
+	ready = true;
 }
 
 std::string BlockFilter::getNameFromID(unsigned int ID) const {
@@ -61,5 +63,9 @@ std::string BlockFilter::getNameFromID(unsigned int ID) const {
 }
 
 bool BlockFilter::isTarget(unsigned int ID) const {
+	//if (!ready) {
+	//	// Load blocks first
+	//}
+
 	return targetBits[ID];
 }

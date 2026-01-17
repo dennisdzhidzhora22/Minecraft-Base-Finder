@@ -11,7 +11,13 @@ public:
     explicit ZoomableGraphicsView(QWidget* parent = nullptr)
         : QGraphicsView(parent) {
         setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+        scale(100.0, 100.0);
+
+        setMouseTracking(true);
     }
+
+signals:
+    void mouseMoved(int chunkX, int chunkZ);
 
 protected:
     void wheelEvent(QWheelEvent* event) override {
@@ -20,6 +26,13 @@ protected:
             scale(scaleFactor, scaleFactor);
         else
             scale(1.0 / scaleFactor, 1.0 / scaleFactor);
+    }
+
+    void mouseMoveEvent(QMouseEvent* event) override {
+        QGraphicsView::mouseMoveEvent(event);
+
+        QPointF scenePos = mapToScene(event->pos());
+        emit mouseMoved(static_cast<int>(floor(scenePos.x())), static_cast<int>(floor(scenePos.y())));
     }
 };
 
