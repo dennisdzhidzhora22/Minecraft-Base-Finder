@@ -38,19 +38,39 @@ if(WIN32)
     set_target_properties(BaseFinderView PROPERTIES
         WIN32_EXECUTABLE TRUE
     )
+
+    set(WINDEPLOYQT_EXE "$ENV{QTDIR}/bin/windeployqt.exe")
+    get_filename_component(QT_BIN_DIR "${WINDEPLOYQT_EXE}" DIRECTORY)
+    file(TO_NATIVE_PATH "${QT_BIN_DIR}" QT_BIN_DIR_NATIVE)
+    file(TO_NATIVE_PATH "${WINDEPLOYQT_EXE}" WINDEPLOYQT_EXE_NATIVE)
+
+    # Zlib
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(ZLIB_DLL_SRC "$ENV{VCPKG_ROOT}/installed/x64-windows/debug/bin/zlibd1.dll")
+    else()
+        set(ZLIB_DLL_SRC "$ENV{VCPKG_ROOT}/installed/x64-windows/bin/zlib1.dll")
+    endif()
     
     # Copy Qt DLLs to output directory (for deployment)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_custom_command(TARGET BaseFinderView POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E env PATH="${_qt_bin_dir}" 
-            "${CMAKE_PREFIX_PATH}/bin/windeployqt.exe" 
+            COMMAND ${CMAKE_COMMAND} -E env PATH="${QT_BIN_DIR_NATIVE}" 
+            "${WINDEPLOYQT_EXE_NATIVE}" 
             --debug --compiler-runtime "$<TARGET_FILE:BaseFinderView>"
+
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${ZLIB_DLL_SRC}"
+            "$<TARGET_FILE_DIR:BaseFinderView>"
         )
     else()
         add_custom_command(TARGET BaseFinderView POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E env PATH="${_qt_bin_dir}" 
-            "${CMAKE_PREFIX_PATH}/bin/windeployqt.exe" 
+            COMMAND ${CMAKE_COMMAND} -E env PATH="${QT_BIN_DIR_NATIVE}" 
+            "${WINDEPLOYQT_EXE_NATIVE}" 
             --release --compiler-runtime "$<TARGET_FILE:BaseFinderView>"
+
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${ZLIB_DLL_SRC}"
+            "$<TARGET_FILE_DIR:BaseFinderView>"
         )
     endif()
 endif()

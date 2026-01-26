@@ -48,6 +48,9 @@ uncompressedOutput.nbt
 uncompressedOutput.txt
 Minecraft Base Finder/zlibd.dll
 BaseFinderView/zlibd.dll
+Minecraft Base Finder/r.0.0 - Copy.mca
+CMakeUserPresets_old.json
+old/
 
 # Test Output
 [Oo]utput/
@@ -380,5 +383,3 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/Minecraft Base Finder/r.0.0 - Copy.mca
-/CMakeUserPresets_old.json

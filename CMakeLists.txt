@@ -1,22 +1,12 @@
 cmake_minimum_required(VERSION 3.20)
 
-if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE FILEPATH "Toolchain file")
-endif()
-message(STATUS "CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
-
 project(MinecraftBaseFinder)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if(DEFINED ENV{QTDIR})
-    set(CMAKE_PREFIX_PATH "$ENV{QTDIR}")
-else()
-    message(WARNING "QTDIR environment variable not set, falling back to default path")
-    set(CMAKE_PREFIX_PATH "C:/Qt/6.8.2/msvc2022_64")
-endif()
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
+find_package(ZLIB REQUIRED)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
