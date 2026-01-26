@@ -12,7 +12,10 @@
       },
       "cacheVariables": {
         "Qt6_DIR": "$env{QTDIR}/lib/cmake/Qt6",
-        "ZLIB_ROOT": "$env{VCPKG_ROOT}/installed/x64-windows"
+        "ZLIB_ROOT": "$env{VCPKG_ROOT}/installed/x64-windows",
+        "ZLIB_INCLUDE_DIR": "$env{VCPKG_ROOT}/installed/x64-windows/include",
+        "ZLIB_LIBRARY_DEBUG": "$env{VCPKG_ROOT}/installed/x64-windows/debug/lib/zlibd.lib",
+        "ZLIB_LIBRARY_RELEASE": "$env{VCPKG_ROOT}/installed/x64-windows/lib/zlib.lib"
       }
     },
     {
