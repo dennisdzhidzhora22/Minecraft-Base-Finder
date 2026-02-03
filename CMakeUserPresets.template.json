@@ -52,7 +52,7 @@
       "inherits": "Qt",
       "environment": {
         "//": "If NOT using Qt VS Tools, set Qt directory and respective config name here. Example: C:/Qt/6.8.2/msvc2022_64",
-        "QTDIR": "C:/Qt/6.8.2/msvc2022_64"
+        "QTDIR": ""
       },
       "architecture": {
         "strategy": "external",
